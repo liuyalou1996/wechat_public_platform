@@ -1,22 +1,6 @@
 package com.iboxpay.entity;
 
-enum Season {
-  SPRING("春天");
-
-  private final String name;
-
-  private Season(String name) {
-    this.name = name;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-}
-
 public class Merchant {
-
   private int mid;
   private String mno;
   private String mname;
@@ -48,9 +32,5 @@ public class Merchant {
   @Override
   public String toString() {
     return "Merchant [mid=" + mid + ", mno=" + mno + ", mname=" + mname + "]";
-  }
-
-  public static void main(String[] args) throws Exception {
-    
   }
 }
