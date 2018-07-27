@@ -1,4 +1,4 @@
-package com.iboxpay.util;
+package com.iboxpay.utils;
 
 import java.util.List;
 import java.util.Map;

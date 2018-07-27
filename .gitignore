@@ -23,3 +23,6 @@
 /dist/
 /nbdist/
 /.nb-gradle/
+disconf/download/jdbc.properties.lock
+disconf/download/jdbc.properties
+src/test/java/com/iboxpay/DruidConfigTest.java
