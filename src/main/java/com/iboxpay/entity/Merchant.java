@@ -1,36 +1,37 @@
 package com.iboxpay.entity;
 
 public class Merchant {
-  private int mid;
-  private String mno;
-  private String mname;
 
-  public int getMid() {
-    return mid;
-  }
+	private int mid;
+	private String mno;
+	private String mname;
 
-  public void setMid(int mid) {
-    this.mid = mid;
-  }
+	public int getMid() {
+		return mid;
+	}
 
-  public String getMno() {
-    return mno;
-  }
+	public void setMid(int mid) {
+		this.mid = mid;
+	}
 
-  public void setMno(String mno) {
-    this.mno = mno;
-  }
+	public String getMno() {
+		return mno;
+	}
 
-  public String getMname() {
-    return mname;
-  }
+	public void setMno(String mno) {
+		this.mno = mno;
+	}
 
-  public void setMname(String mname) {
-    this.mname = mname;
-  }
+	public String getMname() {
+		return mname;
+	}
 
-  @Override
-  public String toString() {
-    return "Merchant [mid=" + mid + ", mno=" + mno + ", mname=" + mname + "]";
-  }
+	public void setMname(String mname) {
+		this.mname = mname;
+	}
+
+	@Override
+	public String toString() {
+		return "Merchant [mid=" + mid + ", mno=" + mno + ", mname=" + mname + "]";
+	}
 }
