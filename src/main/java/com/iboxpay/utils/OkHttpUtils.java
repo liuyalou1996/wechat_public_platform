@@ -3,7 +3,6 @@ package com.iboxpay.utils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -127,12 +126,5 @@ public class OkHttpUtils {
       LOGGER.error("fail to establish the connection with " + url, e);
       throw e;
     }
-  }
-
-  public static void main(String[] args) throws Exception {
-    Map<String, Object> map = new HashMap<String, Object>();
-    map.put("name", "lyl");
-    String response = OkHttpUtils.sendPostWithKeyValue("http://139.199.59.97:8888/wechat_public_platform/getMerchant.json", map);
-    System.out.println(response);
   }
 }
