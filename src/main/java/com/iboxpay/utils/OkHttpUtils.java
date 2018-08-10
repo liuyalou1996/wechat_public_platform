@@ -1,6 +1,5 @@
 package com.iboxpay.utils;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -13,7 +12,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
+import com.alibaba.fastjson.JSONObject;
+
 import okhttp3.FormBody;
+import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -30,8 +32,14 @@ public class OkHttpUtils {
 
   public static final MediaType OCTET_STREAM = MediaType.get("application/octet-stream");
 
+  /**
+   * 请求带的UA
+   */
   public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36";
 
+  /**
+   * 超时、读、写时长
+   */
   public static final int TIMEOUT = 10;
 
   public static OkHttpClient getOkHttpClient() {
@@ -46,126 +54,135 @@ public class OkHttpUtils {
     return builder.build();
   }
 
-  public static String sendGet(String url, Map<String, Object> params) throws IOException {
-    return sendGet(url, params, TIMEOUT);
+  public static OkHttpResp sendGet(String url, Map<String, Object> reqHeaders, Map<String, Object> params) throws IOException {
+    return sendGet(url, reqHeaders, params, TIMEOUT);
   }
 
   /**
-   * 发送get请求
-   * 
-   * @param url
-   *            网址
-   * @param params
-   *            请求参数
-   * @param timeout
-   *            超时时长
+   * get请求
+   * @param url 请求地址
+   * @param reqHeaders 请求头
+   * @param params 请求参数
+   * @param timeout 超时时长
    * @return
    * @throws IOException
    */
-  public static String sendGet(String url, Map<String, Object> params, int timeout) throws IOException {
+  public static OkHttpResp sendGet(String url, Map<String, Object> reqHeaders, Map<String, Object> params, int timeout) throws IOException {
     if (StringUtils.isBlank(url)) {
       throw new IllegalArgumentException("request url can not be null");
     }
 
     OkHttpClient client = getOkHttpClient(timeout);
     HttpUrl.Builder urlBuilder = HttpUrl.get(url).newBuilder();
-
+    // 拼接参数
     if (!CollectionUtils.isEmpty(params)) {
-      for (Entry<String, Object> entry : params.entrySet()) {
-        urlBuilder.addQueryParameter(entry.getKey(), (String) entry.getValue());
+      for (Entry<String, Object> param : params.entrySet()) {
+        Object value = param.getValue();
+        if (value == null) {
+          urlBuilder.addEncodedQueryParameter(param.getKey(), null);
+        } else {
+          urlBuilder.addEncodedQueryParameter(param.getKey(), String.valueOf(param.getValue()));
+        }
       }
     }
 
     HttpUrl httpUrl = urlBuilder.build();
-    Request request = new Request.Builder().url(httpUrl).addHeader("User-Agent", USER_AGENT).get().build();
-    return getResponse(url, client, request);
+    Request.Builder reqBuilder = new Request.Builder().url(httpUrl).addHeader("User-Agent", USER_AGENT);
+    // 增加请求头
+    addHeaders(reqHeaders, reqBuilder);
+    Request request = reqBuilder.get().build();
+    System.out.println(httpUrl.toString());
+    return getResponse(httpUrl.toString(), client, request);
   }
 
-  public static String sendPostWithKeyValue(String url, Map<String, Object> params) throws IOException {
-    return sendPostWithKeyValue(url, params, TIMEOUT);
+  public static OkHttpResp sendPostWithKeyValue(String url, Map<String, Object> headers, Map<String, Object> params) throws IOException {
+    return sendPostWithKeyValue(url, headers, params, TIMEOUT);
   }
 
   /**
    * 发送post请求，请求参数格式为键值对
-   * 
-   * @param url
-   *            网址
-   * @param params
-   *            请求参数
-   * @param timeout
-   *            超时时长
+   * @param url 请求地址
+   * @param reqHeaders 请求头
+   * @param params 请求参数
+   * @param timeout 超时时长
    * @return
    * @throws IOException
    */
-  public static String sendPostWithKeyValue(String url, Map<String, Object> params, int timeout) throws IOException {
+  public static OkHttpResp sendPostWithKeyValue(String url, Map<String, Object> reqHeaders, Map<String, Object> params, int timeout) throws IOException {
     if (StringUtils.isBlank(url)) {
       throw new IllegalArgumentException("request url can not be null");
     }
 
     OkHttpClient client = getOkHttpClient(timeout);
-    FormBody.Builder formBuilder = new FormBody.Builder(Charset.forName("UTF-8"));
+    Request.Builder reqBuilder = new Request.Builder().url(url).addHeader("User-Agent", USER_AGENT);
+    // 增加请求头
+    addHeaders(reqHeaders, reqBuilder);
 
+    FormBody.Builder formBuilder = new FormBody.Builder(Charset.forName("UTF-8"));
+    FormBody formBody = formBuilder.build();
+    // 添加请求参数
     if (!CollectionUtils.isEmpty(params)) {
-      for (Map.Entry<String, Object> entry : params.entrySet()) {
-        formBuilder.add(entry.getKey(), (String) entry.getValue());
+      for (Map.Entry<String, Object> param : params.entrySet()) {
+        Object obj = param.getValue();
+        if (obj != null) {
+          formBuilder.add(param.getKey(), String.valueOf(param.getValue()));
+        } else {
+          formBuilder.add(param.getKey(), null);
+        }
       }
     }
 
-    FormBody formBody = formBuilder.build();
-    Request request = new Request.Builder().url(url).addHeader("User-Agent", USER_AGENT).post(formBody).build();
-
+    Request request = reqBuilder.post(formBody).build();
     return getResponse(url, client, request);
   }
 
-  public static String sendPostWithJson(String url, Map<String, Object> params) throws IOException {
-    return sendPostWithJson(url, params, TIMEOUT);
+  public static OkHttpResp sendPostWithJson(String url, Map<String, Object> reqHeaders, Map<String, Object> params) throws IOException {
+    return sendPostWithJson(url, reqHeaders, params, TIMEOUT);
   }
 
   /**
    * 发送post请求，请求参数格式为json格式
-   * 
-   * @param url
-   *            网址
-   * @param params
-   *            参数
-   * @param timeout
-   *            超时时长
+   * @param url 请求地址
+   * @param reqHeaders 请求头
+   * @param params 请求参数
+   * @param timeout 超时时长
    * @return
    * @throws IOException
    */
-  public static String sendPostWithJson(String url, Map<String, Object> params, int timeout) throws IOException {
+  public static OkHttpResp sendPostWithJson(String url, Map<String, Object> reqHeaders, Map<String, Object> params, int timeout) throws IOException {
     if (StringUtils.isBlank(url)) {
       throw new IllegalArgumentException("request url can not be null");
     }
 
     OkHttpClient client = getOkHttpClient(timeout);
-    RequestBody requestBody = RequestBody.create(JSON, JsonUtils.toJsonString(params));
 
+    Request.Builder reqBuilder = new Request.Builder().url(url).addHeader("User-Agent", USER_AGENT);
+    // 添加请求头
+    addHeaders(reqHeaders, reqBuilder);
+
+    // 添加请求参数
+    RequestBody requestBody = RequestBody.create(JSON, JSONObject.toJSONString(params));
     if (CollectionUtils.isEmpty(params)) {
       requestBody = RequestBody.create(JSON, "");
     }
 
-    Request request = new Request.Builder().url(url).addHeader("User-Agent", USER_AGENT).post(requestBody).build();
+    Request request = reqBuilder.post(requestBody).build();
     return getResponse(url, client, request);
   }
 
-  public static String uploadFile(String url, List<MultipartFile> files) throws IOException {
+  public static OkHttpResp uploadFile(String url, List<MultipartFile> files) throws IOException {
     return uploadFile(url, files, TIMEOUT);
   }
 
   /**
    * 上传文件
-   * 
-   * @param url
-   *            网址
-   * @param files
-   *            文件列表
-   * @param timeout
-   *            超时时长
+   * @param url 请求地址
+   * @param files 文件列表
+   * @param timeout 超时时长
    * @return
    * @throws IOException
    */
-  public static String uploadFile(String url, List<MultipartFile> files, int timeout) throws IOException {
+  public static OkHttpResp uploadFile(String url, List<MultipartFile> files, int timeout) throws IOException {
     if (StringUtils.isBlank(url)) {
       throw new IllegalArgumentException("request url can not be null");
     }
@@ -176,10 +193,10 @@ public class OkHttpUtils {
 
     if (!CollectionUtils.isEmpty(files)) {
       for (MultipartFile multipartFile : files) {
-        File file = new File(multipartFile.getPath());
         String fieldName = multipartFile.getFieldName();
-        String fileName = file.getName();
-        multiBuilder.addFormDataPart(fieldName, fileName, RequestBody.create(OCTET_STREAM, file));
+        String fileName = multipartFile.getFileName();
+        byte[] content = multipartFile.getContent();
+        multiBuilder.addFormDataPart(fieldName, fileName, RequestBody.create(OCTET_STREAM, content));
       }
     }
 
@@ -194,11 +211,8 @@ public class OkHttpUtils {
 
   /**
    * 下载文件
-   * 
-   * @param url
-   *            网址
-   * @param timeout
-   *            超时时长
+   * @param url 请求地址
+   * @param timeout 超时时长
    * @return
    * @throws IOException
    */
@@ -222,17 +236,34 @@ public class OkHttpUtils {
     }
   }
 
-  private static String getResponse(String url, OkHttpClient client, Request request) throws IOException {
+  private static OkHttpResp getResponse(String url, OkHttpClient client, Request request) throws IOException {
     // 确保Response和ResponseBody关闭
     try (Response response = client.newCall(request).execute()) {
       if (!response.isSuccessful()) {
         return null;
       }
 
-      return response.body().string();
+      OkHttpResp resp = new OkHttpResp();
+      resp.setRespStr(response.body().string());
+      resp.setRespHeaders(response.headers());
+      return resp;
     } catch (IOException e) {
       LOGGER.error("fail to establish the connection with " + url, e);
       throw e;
+    }
+  }
+
+  private static void addHeaders(Map<String, Object> reqHeaders, Request.Builder reqBuilder) {
+    if (!CollectionUtils.isEmpty(reqHeaders)) {
+      for (Entry<String, Object> reqHeader : reqHeaders.entrySet()) {
+        Object value = reqHeader.getValue();
+        if (value != null) {
+          reqBuilder.addHeader(reqHeader.getKey(), String.valueOf(reqHeader.getValue()));
+        } else {
+          reqBuilder.addHeader(reqHeader.getKey(), null);
+        }
+
+      }
     }
   }
 
@@ -243,18 +274,23 @@ public class OkHttpUtils {
      */
     private String fieldName;
     /**
+     * 文件名
+     */
+    private String fileName;
+    /**
      * 文件路径
      */
-    private String path;
+    private byte[] content;
 
     public MultipartFile() {
       super();
     }
 
-    public MultipartFile(String fieldName, String path) {
+    public MultipartFile(String fieldName, String fileName, byte[] content) {
       super();
       this.fieldName = fieldName;
-      this.path = path;
+      this.fileName = fileName;
+      this.content = content;
     }
 
     public String getFieldName() {
@@ -265,13 +301,49 @@ public class OkHttpUtils {
       this.fieldName = fieldName;
     }
 
-    public String getPath() {
-      return path;
+    public String getFileName() {
+      return fileName;
     }
 
-    public void setPath(String path) {
-      this.path = path;
+    public void setFileName(String fileName) {
+      this.fileName = fileName;
     }
 
+    public byte[] getContent() {
+      return content;
+    }
+
+    public void setContent(byte[] content) {
+      this.content = content;
+    }
   }
+
+  public static class OkHttpResp {
+
+    /**
+     * 响应字符串
+     */
+    private String respStr;
+    /**
+     * 响应头
+     */
+    private Headers respHeaders;
+
+    public String getRespStr() {
+      return respStr;
+    }
+
+    public void setRespStr(String respStr) {
+      this.respStr = respStr;
+    }
+
+    public Headers getRespHeaders() {
+      return respHeaders;
+    }
+
+    public void setRespHeaders(Headers respHeaders) {
+      this.respHeaders = respHeaders;
+    }
+  }
+
 }
