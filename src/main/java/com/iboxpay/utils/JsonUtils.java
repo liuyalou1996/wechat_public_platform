@@ -8,40 +8,47 @@ import org.springframework.util.CollectionUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class JsonUtils {
 
-  /**
-   * 将对象转换为json字符串
-   * 
-   * @param obj
-   *            转换的对象
-   * @return
-   */
-  public static String toJsonString(Object obj) {
-    return toJsonString(obj, false);
+  public static String toJsonString(Object obj, SerializeFilter... filters) {
+    return toJsonString(obj, false, false, filters);
   }
 
-  /**
-   * 对象转换为json字符串，可允许转换空值
-   * 
-   * @param obj
-   *            转换的对象
-   * @param isNullValueAllowed
-   *            是否允许空值
-   * @return
-   */
-  public static String toJsonString(Object obj, boolean isNullValueAllowed) {
+  public static String toJsonStringWithNullValue(Object obj, SerializeFilter... filters) {
+    return toJsonString(obj, true, false, filters);
+  }
+
+  public static String toPrettyJsonString(Object obj, SerializeFilter... filters) {
+    return toJsonString(obj, false, true, filters);
+  }
+
+  public static String toPrettyJsonStringWithNullValue(Object obj, SerializeFilter... filters) {
+    return toJsonString(obj, true, true, filters);
+  }
+
+  private static String toJsonString(Object obj, boolean isNullValueAllowed, boolean prettyFormat,
+      SerializeFilter... filters) {
     if (obj == null) {
       return null;
     }
 
-    if (!isNullValueAllowed) {
-      return JSON.toJSONString(obj);
+    if (isNullValueAllowed) {
+      if (prettyFormat) {
+        return JSON.toJSONString(obj, filters, SerializerFeature.WriteMapNullValue, SerializerFeature.PrettyFormat,
+            SerializerFeature.WriteDateUseDateFormat);
+      }
+      return JSON.toJSONString(obj, filters, SerializerFeature.WriteMapNullValue,
+          SerializerFeature.WriteDateUseDateFormat);
+    } else {
+      if (prettyFormat) {
+        return JSON.toJSONString(obj, filters, SerializerFeature.PrettyFormat,
+            SerializerFeature.WriteDateUseDateFormat);
+      }
+      return JSON.toJSONString(obj, filters, SerializerFeature.WriteDateUseDateFormat);
     }
-
-    return JSON.toJSONString(obj, SerializerFeature.WRITE_MAP_NULL_FEATURES);
   }
 
   /**

@@ -35,7 +35,8 @@ public class OkHttpUtils {
   /**
    * 请求带的UA
    */
-  public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36";
+  public static final String USER_AGENT =
+      "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36";
 
   /**
    * 超时、读、写时长
@@ -54,7 +55,8 @@ public class OkHttpUtils {
     return builder.build();
   }
 
-  public static OkHttpResp sendGet(String url, Map<String, Object> reqHeaders, Map<String, Object> params) throws IOException {
+  public static OkHttpResp sendGet(String url, Map<String, Object> reqHeaders, Map<String, Object> params)
+      throws IOException {
     return sendGet(url, reqHeaders, params, TIMEOUT);
   }
 
@@ -67,7 +69,8 @@ public class OkHttpUtils {
    * @return
    * @throws IOException
    */
-  public static OkHttpResp sendGet(String url, Map<String, Object> reqHeaders, Map<String, Object> params, int timeout) throws IOException {
+  public static OkHttpResp sendGet(String url, Map<String, Object> reqHeaders, Map<String, Object> params, int timeout)
+      throws IOException {
     if (StringUtils.isBlank(url)) {
       throw new IllegalArgumentException("request url can not be null");
     }
@@ -91,11 +94,11 @@ public class OkHttpUtils {
     // 增加请求头
     addHeaders(reqHeaders, reqBuilder);
     Request request = reqBuilder.get().build();
-    System.out.println(httpUrl.toString());
     return getResponse(httpUrl.toString(), client, request);
   }
 
-  public static OkHttpResp sendPostWithKeyValue(String url, Map<String, Object> headers, Map<String, Object> params) throws IOException {
+  public static OkHttpResp sendPostWithKeyValue(String url, Map<String, Object> headers, Map<String, Object> params)
+      throws IOException {
     return sendPostWithKeyValue(url, headers, params, TIMEOUT);
   }
 
@@ -108,7 +111,8 @@ public class OkHttpUtils {
    * @return
    * @throws IOException
    */
-  public static OkHttpResp sendPostWithKeyValue(String url, Map<String, Object> reqHeaders, Map<String, Object> params, int timeout) throws IOException {
+  public static OkHttpResp sendPostWithKeyValue(String url, Map<String, Object> reqHeaders, Map<String, Object> params,
+      int timeout) throws IOException {
     if (StringUtils.isBlank(url)) {
       throw new IllegalArgumentException("request url can not be null");
     }
@@ -136,7 +140,8 @@ public class OkHttpUtils {
     return getResponse(url, client, request);
   }
 
-  public static OkHttpResp sendPostWithJson(String url, Map<String, Object> reqHeaders, Map<String, Object> params) throws IOException {
+  public static OkHttpResp sendPostWithJson(String url, Map<String, Object> reqHeaders, Map<String, Object> params)
+      throws IOException {
     return sendPostWithJson(url, reqHeaders, params, TIMEOUT);
   }
 
@@ -149,7 +154,8 @@ public class OkHttpUtils {
    * @return
    * @throws IOException
    */
-  public static OkHttpResp sendPostWithJson(String url, Map<String, Object> reqHeaders, Map<String, Object> params, int timeout) throws IOException {
+  public static OkHttpResp sendPostWithJson(String url, Map<String, Object> reqHeaders, Map<String, Object> params,
+      int timeout) throws IOException {
     if (StringUtils.isBlank(url)) {
       throw new IllegalArgumentException("request url can not be null");
     }
@@ -231,7 +237,7 @@ public class OkHttpUtils {
 
       return response.body().bytes();
     } catch (IOException e) {
-      LOGGER.error("fail to establish the connection with " + url, e);
+      LOGGER.error("fail to establish the connection with {}", url, e);
       throw e;
     }
   }
@@ -248,7 +254,7 @@ public class OkHttpUtils {
       resp.setRespHeaders(response.headers());
       return resp;
     } catch (IOException e) {
-      LOGGER.error("fail to establish the connection with " + url, e);
+      LOGGER.error("fail to establish the connection with {}", url, e);
       throw e;
     }
   }
