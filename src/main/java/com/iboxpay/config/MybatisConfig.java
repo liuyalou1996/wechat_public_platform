@@ -21,7 +21,7 @@ import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceBuilder;
 @EnableTransactionManagement
 public class MybatisConfig {
 
-  @ConfigurationProperties(prefix = "druid")
+  @ConfigurationProperties(prefix = "spring.datasource.druid")
   @Bean(name = "druidDataSource", initMethod = "init", destroyMethod = "close")
   public DataSource druidDataSource() {
     return DruidDataSourceBuilder.create().build();
