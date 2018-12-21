@@ -51,8 +51,8 @@ public class MerchantController {
 
   @RequestMapping("/getMerchant3.json")
   @ResponseBody
-  public Merchant response3(Merchant mcht) {
-    return mcht;
+  public Map<String, Object> response3(@RequestBody Map<String, Object> params) {
+    return params;
   }
 
   @RequestMapping("/getMerchantMap.json")
