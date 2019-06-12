@@ -6,27 +6,32 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
+import org.springframework.core.PriorityOrdered;
 import org.springframework.stereotype.Component;
 
-import com.iboxpay.annotation.DataSourceRouting;
+import com.iboxpay.annotation.DataSourceRoutable;
 import com.iboxpay.holder.DataSourceTypeHolder;
 
 @Component
 @Aspect
-@Order(Ordered.LOWEST_PRECEDENCE - 1)
-public class DynamicDataSourceRoutingAspect {
+public class DynamicDataSourceRoutingAspect implements PriorityOrdered {
 
-  // @Before("@annotation(dataSourceRouting)")
   @Before("@within(dataSourceRouting) || @annotation(dataSourceRouting)")
-  public void determineDataSource(JoinPoint jp, DataSourceRouting dataSourceRouting) {
-    System.err.println("进入DynamicDataSourceRoutingAspect");
-    System.err.println(jp.getSignature().getName());
-    if (Objects.isNull(dataSourceRouting)) {
-      return;
+  public void determineDataSource(JoinPoint jp, DataSourceRoutable dataSourceRouting) {
+    if (!Objects.isNull(dataSourceRouting)) {
+      DataSourceTypeHolder.setDataSourceType(dataSourceRouting.value());
+    } else {
+      Class<?> clazz = jp.getTarget().getClass();
+      if (clazz.isAnnotationPresent(DataSourceRoutable.class)) {
+        DataSourceRoutable annotionOnClass = clazz.getAnnotation(DataSourceRoutable.class);
+        DataSourceTypeHolder.setDataSourceType(annotionOnClass.value());
+      }
     }
-    System.err.println("设置数据源" + dataSourceRouting.value());
-    DataSourceTypeHolder.setDataSourceType(dataSourceRouting.value());
+  }
+
+  @Override
+  public int getOrder() {
+    return Ordered.LOWEST_PRECEDENCE - 1;
   }
 
 }

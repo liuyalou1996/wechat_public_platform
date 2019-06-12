@@ -32,13 +32,13 @@ public class MybatisConfig {
   }
 
   @Bean
-  public DynamicRoutingDataSource dynamicRoutingDataSource(DataSource dataSource) {
+  public DynamicRoutingDataSource dynamicRoutingDataSource(DataSource druidDataSource) {
     Map<Object, Object> targetDataSources = new HashMap<>();
-    targetDataSources.put(DataSourceType.MYSQL, dataSource);
+    targetDataSources.put(DataSourceType.MYSQL, druidDataSource);
 
     DynamicRoutingDataSource dynamicDataSource = new DynamicRoutingDataSource();
     dynamicDataSource.setTargetDataSources(targetDataSources);
-    dynamicDataSource.setDefaultTargetDataSource(dataSource);
+    dynamicDataSource.setDefaultTargetDataSource(druidDataSource);
     return dynamicDataSource;
   }
 

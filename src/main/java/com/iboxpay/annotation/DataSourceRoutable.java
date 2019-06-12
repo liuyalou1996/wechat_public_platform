@@ -9,7 +9,7 @@ import com.iboxpay.constants.DataSourceType;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD, ElementType.TYPE })
-public @interface DataSourceRouting {
+public @interface DataSourceRoutable {
 
   DataSourceType value() default DataSourceType.MYSQL;
 }

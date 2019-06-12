@@ -1,6 +1,6 @@
 package com.iboxpay.config;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,9 +29,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     FastJsonHttpMessageConverter fastJsonConverter = new FastJsonHttpMessageConverter();
     List<MediaType> mediaTypes = new ArrayList<>();
-    mediaTypes.add(MediaType.TEXT_HTML);
+    // mediaTypes.add(new MediaType("text", "html", StandardCharsets.UTF_8));
     mediaTypes.add(MediaType.APPLICATION_JSON_UTF8);
-    mediaTypes.add(new MediaType("application", "*+json", Charset.forName("UTF-8")));
+    mediaTypes.add(new MediaType("application", "*+json", StandardCharsets.UTF_8));
     fastJsonConverter.setSupportedMediaTypes(mediaTypes);
     converters.add(fastJsonConverter);
 
