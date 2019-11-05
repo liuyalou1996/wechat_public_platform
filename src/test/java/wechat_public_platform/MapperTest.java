@@ -7,18 +7,18 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.iboxpay.Application;
-import com.iboxpay.service.StudentServiceImpl;
+import com.iboxpay.mapper.EmpMapper;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
-public class AopTest {
+public class MapperTest {
 
   @Autowired
-  private StudentServiceImpl studentServiceImpl;
+  private EmpMapper empMapper;
 
   @Test
   public void test() {
-    studentServiceImpl.getAllStudent();
+    System.err.println(empMapper.listEmps());
   }
 
 }

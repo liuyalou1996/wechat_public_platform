@@ -3,7 +3,7 @@ package com.iboxpay.mapper;
 import java.util.List;
 import java.util.Map;
 
-public interface StudentMapper {
+public interface EmpMapper {
 
-  List<Map<String, Object>> listStudent();
+  List<Map<String, Object>> listEmps();
 }

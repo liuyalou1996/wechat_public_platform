@@ -34,7 +34,7 @@ public class MybatisConfig {
   @Bean
   public DynamicRoutingDataSource dynamicRoutingDataSource(DataSource druidDataSource) {
     Map<Object, Object> targetDataSources = new HashMap<>();
-    targetDataSources.put(DataSourceType.MYSQL, druidDataSource);
+    targetDataSources.put(DataSourceType.ORACLE, druidDataSource);
 
     DynamicRoutingDataSource dynamicDataSource = new DynamicRoutingDataSource();
     dynamicDataSource.setTargetDataSources(targetDataSources);
@@ -61,7 +61,6 @@ public class MybatisConfig {
 
     @Override
     protected Object determineCurrentLookupKey() {
-      System.err.println("选择的数据源为：" + DataSourceTypeHolder.getDataSourceType());
       return DataSourceTypeHolder.getDataSourceType();
     }
 
